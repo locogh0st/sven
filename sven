@@ -13,7 +13,7 @@ port=119
 user=user
 pass=pass
 from="Sven Security Bot <svenvulnbotn@REMOVEprotonmail.com>"
-froups="alt.hackers.malicious"
+froups="alt.test"
 reader="Sven 2.0 r2"
 botname="Vulnbot"
 
@@ -32,7 +32,7 @@ body=`echo $line | grep -o "Description:.*" | sed '1,$s;Description: ;;' | fold 
 link=`echo $line | grep -o "Link:.*" | sed '1,$s;Link: ;;'`
 source=`echo $link | grep -oP '(?<=www\.)\s?[^\/]*'`
 
-	echo "[$currentdate EST] : $botname : $source : $froups" >> /var/log/sven.log
+	echo "[$currentdate EST] : $botname : $source : $froups" >> sven.log
 	echo "AUTHINFO USER $user" > authin
         echo "AUTHINFO PASS $pass" >> authin
         echo "post" >> authin
