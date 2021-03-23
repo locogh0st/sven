@@ -1,0 +1,55 @@
+#!/bin/sh
+
+feed1="https://threatpost.com/category/vulnerabilities/feed/"
+feed2="https://rss.packetstormsecurity.com/files/tags/vulnerability/"
+feed3="null"
+home=/home/user/hax/sven2.0
+currentdate=`date +"%Y/%m/%d %I:%M:%S"`
+date=`TZ=UTC+2 date +"%Y/%m/%d %H"`
+tor=/usr/bin/torsocks
+nc=/usr/bin/nc
+server="144.76.35.252"
+port=119
+user=user
+pass=pass
+from="Sven Security Bot <svenvulnbotn@REMOVEprotonmail.com>"
+froups="alt.hackers.malicious"
+reader="Sven 2.0 r2"
+botname="Vulnbot"
+
+cd $home
+
+/usr/bin/rsstail -HdplPz -i 10 -n 1 -u $feed1 $feed2 | while read -r line1 && read -r line2 && read line3 && read line4 && read line5
+ do
+
+        line="$line2\n$line3\n$line4"
+
+	if echo $line; then
+	Updated=`echo $line | grep "Pub.date:" | sed '1,$s;Pub.date: ;;'`
+
+subject=`echo $line | grep "Title:" | sed '1,$s;Title: ;;'`
+body=`echo $line | grep -o "Description:.*" | sed '1,$s;Description: ;;' | fold -w 90 -s` 
+link=`echo $line | grep -o "Link:.*" | sed '1,$s;Link: ;;'`
+source=`echo $link | grep -oP '(?<=www\.)\s?[^\/]*'`
+
+	echo "[$currentdate EST] : $botname : $source : $froups" >> /var/log/sven.log
+	echo "AUTHINFO USER $user" > authin
+        echo "AUTHINFO PASS $pass" >> authin
+        echo "post" >> authin
+	echo "From: $from" >> authin
+	echo "Newsgroups: $froups" >> authin
+	echo "Subject: $subject" >> authin
+	echo "Organization: $source"  >> authin
+	echo "User-Agent:: $reader" >> authin
+	echo "" >> authin
+	echo "$body" >> authin
+	echo "" >> authin
+	echo "$link" >> authin
+	echo "" >> authin
+	cat .signature >> authin
+	echo "." >> authin
+	echo "quit" >> authin
+        $tor $nc $server $port < authin
+        sleep 30s 
+fi
+done
